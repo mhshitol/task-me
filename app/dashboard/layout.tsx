@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { TaskForm } from "@/components/tasks/TaskForm";
+import { CategoryModalGlobal } from "@/components/categories/CategoryModalGlobal";
 import { useUIStore } from "@/store/useUIStore";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -24,6 +25,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {children}
       </div>
       <TaskForm />
+      <CategoryModalGlobal />
     </div>
   );
 }

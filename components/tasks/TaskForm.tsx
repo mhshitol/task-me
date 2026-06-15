@@ -10,7 +10,21 @@ import { cn } from "@/lib/utils";
 import type { CreateTaskInput } from "@/lib/validations/task.schema";
 
 const PRIORITIES = ["LOW", "MEDIUM", "HIGH"] as const;
-const PRIORITY_COLORS = { LOW: "text-neutral-500", MEDIUM: "text-amber-500", HIGH: "text-red-500" };
+
+const PRIORITY_STYLES = {
+  LOW: {
+    active:   "bg-neutral-700 border-neutral-500 text-white",
+    inactive: "border-neutral-700 text-neutral-500 hover:border-neutral-600",
+  },
+  MEDIUM: {
+    active:   "bg-amber-500/20 border-amber-500/50 text-amber-400",
+    inactive: "border-neutral-700 text-neutral-500 hover:border-neutral-600",
+  },
+  HIGH: {
+    active:   "bg-red-500/20 border-red-500/50 text-red-400",
+    inactive: "border-neutral-700 text-neutral-500 hover:border-neutral-600",
+  },
+};
 
 const EMPTY: CreateTaskInput = {
   title:       "",
@@ -22,31 +36,28 @@ const EMPTY: CreateTaskInput = {
 };
 
 export function TaskForm() {
-  const { toast }                           = useToast();
-  const { taskModalOpen, editingTaskId,
-          closeTaskModal }                  = useUIStore((s) => s);
-  const { data: tasks = [] }                = useTasks();
-  const { data: categories = [] }           = useCategories();
-  const createTask                          = useCreateTask();
-  const updateTask                          = useUpdateTask();
+  const { toast }                                        = useToast();
+  const { taskModalOpen, editingTaskId, closeTaskModal } = useUIStore((s) => s);
+  const { data: tasks = [] }                             = useTasks();
+  const { data: categories = [] }                        = useCategories();
+  const createTask                                       = useCreateTask();
+  const updateTask                                       = useUpdateTask();
+  const [form, setForm]                                  = useState<CreateTaskInput>(EMPTY);
+  const isEdit                                           = Boolean(editingTaskId);
 
-  const [form, setForm] = useState<CreateTaskInput>(EMPTY);
-  const isEdit = Boolean(editingTaskId);
-
-  // Pre-fill when editing
   useEffect(() => {
     if (editingTaskId) {
-      const existing = tasks.find((t) => t.id === editingTaskId);
-      if (existing) {
+      const t = tasks.find((t) => t.id === editingTaskId);
+      if (t) {
         setForm({
-          title:       existing.title,
-          description: existing.description ?? "",
-          priority:    existing.priority,
-          status:      existing.status,
-          dueDate:     existing.dueDate
-            ? new Date(existing.dueDate).toISOString().split("T")[0] + "T00:00:00.000Z"
+          title:       t.title,
+          description: t.description ?? "",
+          priority:    t.priority,
+          status:      t.status,
+          dueDate:     t.dueDate
+            ? new Date(t.dueDate).toISOString().split("T")[0] + "T00:00:00.000Z"
             : undefined,
-          categoryId:  existing.categoryId ?? undefined,
+          categoryId:  t.categoryId ?? undefined,
         });
       }
     } else {
@@ -63,7 +74,6 @@ export function TaskForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!form.title.trim()) return;
-
     try {
       if (isEdit && editingTaskId) {
         await updateTask.mutateAsync({ id: editingTaskId, ...form });
@@ -85,22 +95,22 @@ export function TaskForm() {
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40"
+        className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40"
         onClick={closeTaskModal}
       />
 
       {/* Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-neutral-100 overflow-hidden">
+        <div className="bg-neutral-900 w-full max-w-lg rounded-2xl shadow-2xl border border-neutral-800 overflow-hidden">
 
-          {/* Modal header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100">
-            <h2 className="text-base font-semibold text-neutral-900">
+          {/* Header */}
+          <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-800">
+            <h2 className="text-base font-semibold text-white">
               {isEdit ? "Edit Task" : "New Task"}
             </h2>
             <button
               onClick={closeTaskModal}
-              className="w-7 h-7 rounded-lg flex items-center justify-center text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 transition-colors"
+              className="w-7 h-7 rounded-lg flex items-center justify-center text-neutral-500 hover:bg-neutral-800 hover:text-white transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -110,17 +120,15 @@ export function TaskForm() {
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
 
             {/* Title */}
-            <div>
-              <input
-                autoFocus
-                required
-                type="text"
-                value={form.title}
-                onChange={(e) => set("title", e.target.value)}
-                placeholder="Task title…"
-                className="w-full text-base font-medium text-neutral-900 placeholder:text-neutral-300 border-none outline-none bg-transparent"
-              />
-            </div>
+            <input
+              autoFocus
+              required
+              type="text"
+              value={form.title}
+              onChange={(e) => set("title", e.target.value)}
+              placeholder="Task title…"
+              className="w-full text-base font-medium text-white placeholder:text-neutral-600 border-none outline-none bg-transparent"
+            />
 
             {/* Description */}
             <textarea
@@ -128,10 +136,10 @@ export function TaskForm() {
               onChange={(e) => set("description", e.target.value)}
               placeholder="Add a description…"
               rows={3}
-              className="w-full text-sm text-neutral-600 placeholder:text-neutral-300 border border-neutral-100 rounded-xl p-3 bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-200 resize-none transition-all"
+              className="w-full text-sm text-neutral-300 placeholder:text-neutral-600 border border-neutral-700 rounded-xl p-3 bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500/50 resize-none transition-all"
             />
 
-            {/* Row: priority + category */}
+            {/* Priority + Category */}
             <div className="grid grid-cols-2 gap-3">
               {/* Priority */}
               <div className="space-y-1.5">
@@ -147,10 +155,8 @@ export function TaskForm() {
                       className={cn(
                         "flex-1 py-1.5 rounded-lg text-xs font-medium border transition-all",
                         form.priority === p
-                          ? p === "HIGH"   ? "bg-red-50 border-red-200 text-red-600"
-                          : p === "MEDIUM" ? "bg-amber-50 border-amber-200 text-amber-700"
-                          :                  "bg-neutral-100 border-neutral-300 text-neutral-600"
-                          : "bg-white border-neutral-200 text-neutral-400 hover:border-neutral-300"
+                          ? PRIORITY_STYLES[p].active
+                          : PRIORITY_STYLES[p].inactive
                       )}
                     >
                       {p[0] + p.slice(1).toLowerCase()}
@@ -167,7 +173,7 @@ export function TaskForm() {
                 <select
                   value={form.categoryId ?? ""}
                   onChange={(e) => set("categoryId", e.target.value || undefined)}
-                  className="w-full text-sm border border-neutral-200 rounded-xl px-3 py-1.5 bg-white text-neutral-700 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-all"
+                  className="w-full text-sm border border-neutral-700 rounded-xl px-3 py-1.5 bg-neutral-800 text-neutral-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-all"
                 >
                   <option value="">None</option>
                   {categories.map((c) => (
@@ -177,7 +183,7 @@ export function TaskForm() {
               </div>
             </div>
 
-            {/* Row: due date + status */}
+            {/* Due Date + Status */}
             <div className="grid grid-cols-2 gap-3">
               {/* Due date */}
               <div className="space-y-1.5">
@@ -190,7 +196,7 @@ export function TaskForm() {
                   onChange={(e) =>
                     set("dueDate", e.target.value ? e.target.value + "T00:00:00.000Z" : undefined)
                   }
-                  className="w-full text-sm border border-neutral-200 rounded-xl px-3 py-1.5 bg-white text-neutral-700 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-all"
+                  className="w-full text-sm border border-neutral-700 rounded-xl px-3 py-1.5 bg-neutral-800 text-neutral-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-all"
                 />
               </div>
 
@@ -200,7 +206,7 @@ export function TaskForm() {
                 <select
                   value={form.status}
                   onChange={(e) => set("status", e.target.value as CreateTaskInput["status"])}
-                  className="w-full text-sm border border-neutral-200 rounded-xl px-3 py-1.5 bg-white text-neutral-700 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-all"
+                  className="w-full text-sm border border-neutral-700 rounded-xl px-3 py-1.5 bg-neutral-800 text-neutral-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-all"
                 >
                   <option value="TODO">To Do</option>
                   <option value="IN_PROGRESS">In Progress</option>
@@ -210,11 +216,11 @@ export function TaskForm() {
             </div>
 
             {/* Actions */}
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-neutral-100">
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-neutral-800">
               <button
                 type="button"
                 onClick={closeTaskModal}
-                className="px-4 py-2 rounded-xl text-sm text-neutral-600 hover:bg-neutral-100 transition-colors"
+                className="px-4 py-2 rounded-xl text-sm text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors"
               >
                 Cancel
               </button>
