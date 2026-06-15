@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { CheckSquare, LayoutDashboard, ListTodo, LogOut, Plus, Tag } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { CheckSquare, LayoutDashboard, ListTodo, LogOut, Plus, Tag, X } from "lucide-react";
 import { useCategories } from "@/hooks/useCategories";
 import { createClient } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
@@ -15,11 +15,13 @@ const NAV = [
 ];
 
 export function Sidebar() {
-  const pathname     = usePathname();
-  const router       = useRouter();
+  const pathname          = usePathname();
+  const router            = useRouter();
   const { data: categories = [] } = useCategories();
-  const openTaskModal = useUIStore((s) => s.openTaskModal);
+  const openTaskModal     = useUIStore((s) => s.openTaskModal);
   const openCategoryModal = useUIStore((s) => s.openCategoryModal);
+  const sidebarOpen       = useUIStore((s) => s.sidebarOpen);
+  const setSidebarOpen    = useUIStore((s) => s.setSidebarOpen);
 
   async function handleLogout() {
     const supabase = createClient();
@@ -28,8 +30,13 @@ export function Sidebar() {
     router.refresh();
   }
 
-  return (
-    <aside className="w-64 shrink-0 flex flex-col h-screen bg-white dark:bg-neutral-900 border-r border-neutral-100 dark:border-neutral-800 sticky top-0 z-30">
+  function handleNavClick() {
+    // Close sidebar on mobile after navigation
+    if (window.innerWidth < 768) setSidebarOpen(false);
+  }
+
+  const sidebarContent = (
+    <aside className="w-64 shrink-0 flex flex-col h-full bg-white dark:bg-neutral-900 border-r border-neutral-100 dark:border-neutral-800">
 
       {/* Logo */}
       <div className="flex items-center justify-between px-5 h-14 border-b border-neutral-100 dark:border-neutral-800">
@@ -39,13 +46,22 @@ export function Sidebar() {
           </div>
           <span className="font-bold text-base tracking-tight text-neutral-900 dark:text-white">TASK ME</span>
         </div>
-        <ThemeToggle />
+        <div className="flex items-center gap-1">
+          <ThemeToggle />
+          {/* Close button — mobile only */}
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="md:hidden w-7 h-7 rounded-lg flex items-center justify-center text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {/* Quick Add */}
       <div className="px-3 pt-4 pb-2">
         <button
-          onClick={() => openTaskModal()}
+          onClick={() => { openTaskModal(); handleNavClick(); }}
           className="w-full flex items-center gap-2 px-3 py-2 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition-colors shadow-sm shadow-brand-500/20"
         >
           <Plus className="w-4 h-4" />
@@ -59,6 +75,7 @@ export function Sidebar() {
           <Link
             key={href}
             href={href}
+            onClick={handleNavClick}
             className={cn(
               "flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm transition-colors",
               pathname === href
@@ -81,7 +98,6 @@ export function Sidebar() {
           <button
             onClick={() => openCategoryModal()}
             className="w-5 h-5 rounded-md flex items-center justify-center text-neutral-400 hover:text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-500/10 transition-all"
-            title="Add category"
           >
             <Plus className="w-3 h-3" />
           </button>
@@ -101,12 +117,8 @@ export function Sidebar() {
               <Link
                 key={cat.id}
                 href={`/dashboard/tasks?category=${cat.id}`}
-                className={cn(
-                  "flex items-center justify-between px-3 py-2 rounded-xl text-sm transition-colors group",
-                  pathname.includes("tasks") && new URLSearchParams(typeof window !== "undefined" ? window.location.search : "").get("category") === cat.id
-                    ? "bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white font-medium"
-                    : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-white"
-                )}
+                onClick={handleNavClick}
+                className="flex items-center justify-between px-3 py-2 rounded-xl text-sm transition-colors group text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-white"
               >
                 <div className="flex items-center gap-2.5">
                   <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: cat.color }} />
@@ -123,7 +135,7 @@ export function Sidebar() {
         )}
       </div>
 
-      {/* Bottom */}
+      {/* Logout */}
       <div className="p-3 border-t border-neutral-100 dark:border-neutral-800">
         <button
           onClick={handleLogout}
@@ -134,5 +146,32 @@ export function Sidebar() {
         </button>
       </div>
     </aside>
+  );
+
+  return (
+    <>
+      {/* Desktop — always visible */}
+      <div className="hidden md:flex h-screen sticky top-0 z-30">
+        {sidebarContent}
+      </div>
+
+      {/* Mobile — drawer */}
+      <>
+        {/* Backdrop */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 md:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+        {/* Drawer */}
+        <div className={cn(
+          "fixed top-0 left-0 h-full z-50 md:hidden transition-transform duration-300 ease-in-out",
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        )}>
+          {sidebarContent}
+        </div>
+      </>
+    </>
   );
 }

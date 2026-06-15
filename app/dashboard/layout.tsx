@@ -21,7 +21,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="flex min-h-screen bg-neutral-50 dark:bg-neutral-950">
       <Sidebar />
-      <div className="flex flex-1 flex-col min-w-0">
+      <div className="flex flex-1 flex-col min-w-0 w-full">
         {children}
       </div>
       <TaskForm />
