@@ -4,25 +4,37 @@
 
 **A smart, modern task management web app — built for focus and clarity.**
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-task--me--one.vercel.app-6366f1?style=for-the-badge&logo=vercel)](https://task-me-one.vercel.app)
+[![GitHub](https://img.shields.io/badge/GitHub-mhshitol/task--me-181717?style=for-the-badge&logo=github)](https://github.com/mhshitol/task-me)
+
 ![Next.js](https://img.shields.io/badge/Next.js_14-black?style=for-the-badge&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
 ![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
 
 </div>
 
 ---
 
-# Overview
+##  Live Demo
+
+> **[https://task-me-one.vercel.app](https://task-me-one.vercel.app)**
+
+Sign up for a free account and start managing your tasks instantly.
+
+---
+
+##  Overview
 
 TASK ME is a production-level task management application inspired by Notion and Linear. It features a clean, minimal UI with dark/light mode, drag-and-drop task reordering, subtasks, category management, and CSV export.
 
 ---
 
-#  Features
+##  Features
 
-## Phase 1 — Core
+### Phase 1 — Core
 -  Authentication (signup, login, logout) via Supabase Auth
 -  Create, edit, delete tasks
 -  Toggle task status (Todo → In Progress → Done)
@@ -30,7 +42,7 @@ TASK ME is a production-level task management application inspired by Notion and
 -  Due dates
 -  Dashboard with progress overview
 
-## Phase 2 — Enhanced
+### Phase 2 — Enhanced
 -  Category management with custom colors
 -  Search tasks in real time
 -  Filter by status, priority, category
@@ -39,7 +51,7 @@ TASK ME is a production-level task management application inspired by Notion and
 -  Loading skeletons
 -  Overdue task alerts
 
-## Phase 3 — Advanced
+### Phase 3 — Advanced
 -  Drag-and-drop task reordering
 -  Subtasks with progress tracking
 -  Full task detail page
@@ -112,13 +124,13 @@ Category ──< Task
 
 ##  Getting Started
 
-## Prerequisites
+### Prerequisites
 - Node.js v20+
 - A [Supabase](https://supabase.com) account
 
-## 1. Clone the repository
+### 1. Clone the repository
 ```bash
-git clone https://github.com/YOUR_USERNAME/task-me.git
+git clone https://github.com/mhshitol/task-me.git
 cd task-me
 ```
 
@@ -200,7 +212,6 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ##  Roadmap
 
-- [ ] Deploy to Vercel
 - [ ] Email notifications for due tasks
 - [ ] Recurring tasks
 - [ ] Team collaboration / shared categories
@@ -215,5 +226,9 @@ MIT License — feel free to use this project for personal or commercial purpose
 ---
 
 <div align="center">
+
 Built with  using Next.js + Supabase
+
+**[Star this repo](https://github.com/mhshitol/task-me)** if you found it useful!
+
 </div>
