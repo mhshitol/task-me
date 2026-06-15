@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { Header } from "@/components/layout/Header";
@@ -9,7 +10,7 @@ import { QuickAddTask } from "@/components/dashboard/QuickAddTask";
 import { useTasks } from "@/hooks/useTasks";
 import { useTaskFilters, applyFilters } from "@/hooks/useTaskFilters";
 import { useUIStore } from "@/store/useUIStore";
-import { Download, ListTodo, Loader2 } from "lucide-react";
+import { Download, ListTodo } from "lucide-react";
 
 function TaskSkeleton() {
   return (
@@ -18,24 +19,16 @@ function TaskSkeleton() {
       <div className="flex-1 space-y-2">
         <div className="h-4 skeleton rounded-lg w-3/4" />
         <div className="h-3 skeleton rounded-lg w-1/2" />
-        <div className="flex gap-2 mt-2">
-          <div className="h-5 w-16 skeleton rounded-full" />
-          <div className="h-5 w-20 skeleton rounded-full" />
-        </div>
       </div>
     </div>
   );
 }
 
 function ExportButton() {
-  function handleExport() {
-    window.open("/api/tasks/export", "_blank");
-  }
   return (
     <button
-      onClick={handleExport}
+      onClick={() => window.open("/api/tasks/export", "_blank")}
       className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800 text-sm font-medium transition-colors"
-      title="Export tasks to CSV"
     >
       <Download className="w-4 h-4" />
       Export CSV
@@ -43,13 +36,12 @@ function ExportButton() {
   );
 }
 
-export default function TasksPage() {
+function TasksContent() {
   const { data: tasks = [], isLoading } = useTasks();
   const searchParams  = useSearchParams();
   const filters       = useTaskFilters();
   const openTaskModal = useUIStore((s) => s.openTaskModal);
 
-  // Sync category filter from URL
   useEffect(() => {
     const cat = searchParams.get("category");
     if (cat) filters.setCategoryId(cat);
@@ -66,22 +58,16 @@ export default function TasksPage() {
         subtitle={`${done} of ${total} completed`}
         action={<ExportButton />}
       />
-
       <main className="flex-1 p-6 max-w-5xl w-full mx-auto space-y-4">
-        {/* Quick add */}
         <QuickAddTask />
-
-        {/* Filters */}
         <TaskFilters />
 
-        {/* Count */}
         <p className="text-xs text-neutral-400 dark:text-neutral-500 font-medium">
           {filtered.length} task{filtered.length !== 1 ? "s" : ""}
           {filtered.length !== total ? ` of ${total}` : ""}
           {filtered.length > 0 && " · drag to reorder"}
         </p>
 
-        {/* Task list */}
         {isLoading ? (
           <div className="space-y-2">
             {[...Array(5)].map((_, i) => <TaskSkeleton key={i} />)}
@@ -111,5 +97,17 @@ export default function TasksPage() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function TasksPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-6 h-6 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <TasksContent />
+    </Suspense>
   );
 }
